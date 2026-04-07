@@ -3,47 +3,41 @@ package cli
 import (
 	"fmt"
 	"os"
-	"task-manager/internal/task"
-	"flag"
+	"task-manager/internal/service"
 )
 
-func Run(store *task.Store) {
-	command := os.Args[1]
+func Run(s *service.TaskService) {
+	h := NewHandlers(s)
 
-	switch command {
+	if len(os.Args) < 2 {
+		printUsage()
+		os.Exit(1)
+	}
+
+	args := os.Args[2:]
+
+	switch os.Args[1] {
 	case "add":
-		runAdd(store)
+		h.Add(args)
+
+	case "list":
+		h.List(args)
+
+	case "update":
+		h.Update(args)
+
+	case "delete":
+		h.Delete(args)
+
 	default:
-		fmt.Fprintf(os.Stderr, "unknown command: %q\n\n", command)
+		fmt.Fprintf(os.Stderr, "unknown command: %q\n\n", os.Args[1])
 		printUsage()
 		os.Exit(1)
 	}
 }
 
-func runAdd(store *task.Store){
-	fs:=flag.NewFlagSet("add",flag.ExitOnError)
-	title:=fs.String("title","","title name(required)")
-	fs.Parse(os.Args[2:])
-
-	if *title==""{
-		fmt.Fprintln(os.Stderr,"error:- title is required")
-		fs.Usage()
-		os.Exit(1)
-	}
-
-	t,err:= store.Add(*title)
-	if err != nil{
-		handleError(err)
-		return
-	}
-	fmt.Printf("added: %s\n", t)
-}
-
-
-
 func printUsage() {
 	fmt.Println(`task - a simple CLI task manager
-
 usage:
 	task add -title "buy groceries"
 	task list

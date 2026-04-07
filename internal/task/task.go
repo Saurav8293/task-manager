@@ -3,23 +3,16 @@ package task
 import "time"
 
 type Task struct {
-	TaskID    int
-	Title     string
-	Status    string
-	CreatedAt time.Time
+	TaskID    int       `json:"id"`
+	Title     string    `json:"title"`
+	Status    Status    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
-func (t Task) CreateTask() {
-}
+type Status string
 
-func (t Task) ReadTask() {
-
-}
-
-func (t Task) UpdateTask() {
-
-}
-
-func (t Task) DeleteTask() {
-
-}
+const (
+	StatusPending    Status = "pending"
+	StatusInProgress Status = "in_progress"
+	StatusDone       Status = "done"
+)

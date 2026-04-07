@@ -2,10 +2,12 @@ package main
 
 import (
 	"task-manager/internal/cli"
-	"task-manager/internal/task"
+	"task-manager/internal/service"
+	"task-manager/internal/store"
 )
 
 func main() {
-	store := task.NewStore("tasks.json")
-	cli.Run(store)
+	s := store.NewJSONStore("tasks.json")
+	service := service.New(s)
+	cli.Run(service)
 }

@@ -1,9 +1,10 @@
 package store
 
-type Store struct {
-	FilePath string
-}
+import "task-manager/internal/task"
 
-func NewStore(filePath string) *Store {
-	return &Store{FilePath: filePath}
+type Store interface {
+	Add(t task.Task) (task.Task, error)
+	List(filterStatus string) ([]task.Task, error)
+	UpdateStatus(id int, newStatus string) (task.Task, error)
+	DeleteTask(id int) error
 }
