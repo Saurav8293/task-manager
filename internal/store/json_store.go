@@ -26,8 +26,6 @@ func (s *JSONStore) load() ([]task.Task, error) {
 
 	var tasks []task.Task
 	if err := json.Unmarshal(data, &tasks); err != nil {
-		fmt.Println("raw file data:", string(data))
-		fmt.Println("unmarshal error:", err)
 		return nil, fmt.Errorf("parsing task file: %w", err)
 	}
 	return tasks, nil
@@ -93,13 +91,30 @@ func (s *JSONStore) UpdateStatus(id int, status string) (task.Task, error) {
 }
 
 func (s *JSONStore) List(filterStatus string) ([]task.Task, error) {
-	return s.load()
+	tasks, err := s.load()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if filterStatus == "" {
+		return tasks, nil
+	}
+
+	var filtered []task.Task
+
+	for _, t := range tasks {
+		if t.Status == task.Status(filterStatus) {
+			filtered = append(filtered, t)
+		}
+	}
+	return filtered, nil
 }
 
 func (s *JSONStore) DeleteTask(taskId int) error {
 	tasks, err := s.load()
 	if err != nil {
-		fmt.Errorf("Load the tasks: %w", err)
+		return fmt.Errorf("Loading tasks: %w", err)
 	}
 	for i, task := range tasks {
 		if task.TaskID == taskId {

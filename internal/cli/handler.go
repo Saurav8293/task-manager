@@ -1,10 +1,12 @@
 package cli
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
 	"task-manager/internal/service"
+	"task-manager/internal/task"
 )
 
 type Handlers struct {
@@ -26,8 +28,8 @@ func (h *Handlers) Add(args []string) {
 	}
 	t, err := h.svc.Add(*title)
 	if err != nil {
-		fmt.Errorf("Adding the title %w", err)
-		return
+		fmt.Fprintf(os.Stderr, "error adding task: %v\n", err)
+		os.Exit(1)
 	}
 	fmt.Printf("added: %s\n", t)
 
@@ -49,7 +51,6 @@ func (h *Handlers) Update(args []string) {
 	status := fs.String("status", "", "filter: pending, in_progress, done")
 	fs.Parse(args)
 
-	
 	if *id == 0 || *status == "" {
 		fmt.Fprintln(os.Stderr, "error: -id and -status required")
 		os.Exit(1)
@@ -57,7 +58,13 @@ func (h *Handlers) Update(args []string) {
 
 	t, err := h.svc.UpdateStatus(*id, *status)
 	if err != nil {
-		fmt.Errorf("Updating status: %w", err)
+		var notFound *task.NotFoundError
+		if errors.As(err, &notFound) {
+			fmt.Fprintf(os.Stderr, "Task %d does not exist\n", *id)
+		} else {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		}
+		os.Exit(1)
 	}
 	fmt.Println("Task update successfully", t)
 }
@@ -74,7 +81,8 @@ func (h *Handlers) Delete(args []string) {
 
 	err := h.svc.Delete(*id)
 	if err != nil {
-		fmt.Errorf("Task Delete: %w", err)
+		fmt.Fprintf(os.Stderr, "Error deleting task: %v\n", err)
+		os.Exit(1)
 	}
 	fmt.Printf("Task deleted successfully")
 

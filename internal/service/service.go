@@ -19,17 +19,17 @@ func New(s store.Store) *TaskService {
 func (svc *TaskService) Add(title string) (task.Task, error) {
 	err := task.ValidateTitle(title)
 	if err != nil {
-		fmt.Errorf("Title is: %w", err)
+		return task.Task{}, fmt.Errorf("Invalid title: %w", err)
 	}
 	t := task.Task{
-		TaskID:    101,
+		TaskID:    0,
 		Title:     title,
 		Status:    "pending",
 		CreatedAt: time.Now(),
 	}
 	task, err := svc.store.Add(t)
 	if err != nil {
-		fmt.Errorf("task add: %w", err)
+		return task, fmt.Errorf("task add: %w", err)
 	}
 	return task, nil
 }

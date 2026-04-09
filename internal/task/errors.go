@@ -22,8 +22,6 @@ func (e *NotFoundError) Error() string {
 	return fmt.Sprintf("task with id %d not found", e.ID)
 }
 
-
-
 var (
 	ErrInvalidStatus = errors.New("Invalid status")
 )
@@ -31,9 +29,7 @@ var (
 func ValidateStatus(s string) error {
 	switch Status(s) {
 	case StatusPending, StatusInProgress, StatusDone:
-		fmt.Println("status is: ", StatusDone, StatusInProgress, StatusPending)
 		return nil
-
 	default:
 		return fmt.Errorf("'%s' is not valid: %w", s, ErrInvalidStatus)
 	}
